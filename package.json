@@ -1,0 +1,31 @@
+{
+  "name": "promise-line",
+  "version": "0.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "standard && nyc ava"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/telecomsante/promise-line.git"
+  },
+  "keywords": [
+    "promise",
+    "line",
+    "queue",
+    "chain"
+  ],
+  "author": "Télécom Santé",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/telecomsante/promise-line/issues"
+  },
+  "homepage": "https://github.com/telecomsante/promise-line#readme",
+  "devDependencies": {
+    "ava": "^0.16.0",
+    "chai": "^3.5.0",
+    "nyc": "^8.4.0",
+    "standard": "^8.5.0"
+  }
+}
