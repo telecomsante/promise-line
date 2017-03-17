@@ -1,7 +1,6 @@
 'use strict'
 
 module.exports = function (nbMax = 1) {
-  const handle = {}
   const line = []
   let nbExec = 0
 
@@ -19,15 +18,15 @@ module.exports = function (nbMax = 1) {
       })
   }
 
-  handle.push = function (promiseFactory) {
-    const job = { factory: promiseFactory }
-    line.push(job)
-    return new Promise(function (resolve, reject) {
-      job.resolve = resolve
-      job.reject = reject
-      process()
-    })
+  return {
+    push (promiseFactory) {
+      const job = { factory: promiseFactory }
+      line.push(job)
+      return new Promise(function (resolve, reject) {
+        job.resolve = resolve
+        job.reject = reject
+        process()
+      })
+    }
   }
-
-  return handle
 }
