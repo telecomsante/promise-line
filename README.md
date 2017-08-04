@@ -21,9 +21,16 @@ const line = promiseLine()
 Then push some promise factories:
 
 ```javascript
-line.push(() => new Promise((resolve, reject) => { /* promise 1 resolution */ }))
-line.push(() => new Promise((resolve, reject) => { /* promise 2 resolution */ }))
-line.push(() => new Promise((resolve, reject) => { /* promise 3 resolution */ }))
+line.push(() => new promise((resolve, reject) => { /* promise 1 resolution */ }))
+line.push(() => new promise((resolve, reject) => { /* promise 2 resolution */ }))
+line.push(() => new promise((resolve, reject) => { /* promise 3 resolution */ }))
 ```
 
 The line can be used in different unrelated parts of your code in order to avoid mangling critical sections.
+
+You can also execute n max task in parallel
+```javascript
+[...new Array(30)].map((_,i) => ()  => new Promise((resolve, reject) => { /* promise i resolution */ }))
+  .forEach(task => line.push(task))
+```
+No more than 10 task will be executed in parallel
