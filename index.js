@@ -7,11 +7,11 @@ module.exports = function (nbMax = 1) {
   const process = function () {
     if (nbExec === nbMax) return
 
-    const job = line.shift()
-    if (!job) return
+    const task = line.shift()
+    if (!task) return
 
     nbExec++
-    job.factory().then(job.resolve).catch(job.reject)
+    task.factory().then(task.resolve).catch(task.reject)
       .then(() => {
         nbExec--
         process()
@@ -20,11 +20,11 @@ module.exports = function (nbMax = 1) {
 
   return {
     push (promiseFactory) {
-      const job = { factory: promiseFactory }
-      line.push(job)
+      const task = { factory: promiseFactory }
+      line.push(task)
       return new Promise(function (resolve, reject) {
-        job.resolve = resolve
-        job.reject = reject
+        task.resolve = resolve
+        task.reject = reject
         process()
       })
     }
