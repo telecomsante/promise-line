@@ -93,3 +93,23 @@ test('executes many promise chains in sequence', function (done) {
     resolve()
   })).then(done).catch(done)
 })
+
+test('executes many promises in parallel', done => {
+  let count
+  let maxCount
+  var line = promiseLine(10)
+  const promises = [...new Array(30)].map(() => () => new Promise(resolve => {
+    count++
+    maxCount = count > maxCount ? count : maxCount
+    setTimeout(function () {
+      count--
+      resolve()
+    }, 100)
+  })).map(p => line.push(p))
+
+  Promise.all(promises)
+    .then(() => {
+      expect(count).to.equal(0)
+      expect(maxCount).to.equal(10)
+    })
+})
