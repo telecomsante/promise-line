@@ -1,12 +1,10 @@
 # Queuing some promises
 
-Promise-line aim to queuing task and executing n of then in parallel
+Promise-line queue tasks and starts executing them in order with a fixed amount of parallelism.
+A task is a function with no argument returning a promise.
 
-If n = 1 (default) promise-line execute task sequentially
-
-A task is a function which return a promise
-
-This can be useful to limit the access of a resource to one task at the time and avoid race condition or to limit the access to n task and avoid overload
+The default number of tasks that can run in parallel is fixed to 1 which means the tasks will all be executed sequentially by default.
+Sequential promise lines might be used to limit access to a resource to one task at a time while parallel promise lines might be used to avoid having too much running tasks overloading a resource.
 
 ## Usage
 
@@ -18,6 +16,9 @@ npm install --save promise-line
 
 ### Sequential
 
+It is sometimes necessary to synchronize parts of asynchronous processes in order to guarantee coherency (for instance database coherency when the database engine does not support transactions).
+Promise lines can help in these particular cases.
+
 Get a sequential Promise line:
 
 ```javascript
@@ -25,7 +26,7 @@ const promiseLine = require('promise-line')
 const line = promiseLine()
 ```
 
-Then push some promise factories:
+Then push some tasks:
 
 ```javascript
 line.push(() => new Promise((resolve, reject) => { /* promise 1 resolution */ }))
@@ -37,7 +38,9 @@ The line can be used in different unrelated parts of your code in order to avoid
 
 ### Parallel
 
-Get a Promise line limited to 10 parallel task:
+This might be used for instance to avoid sending too much concurrent requests to a web server.
+
+Get a promise line limited to 10 parallel tasks:
 
 ```javascript
 const promiseLine = require('promise-line')
@@ -51,4 +54,5 @@ Add some task:
   .forEach(task => line.push(task))
 ```
 
-No more than 10 task will be executed in parallel
+No more than 10 tasks will be executed in parallel.
+Tasks will be **started** in the same order they were pushed in the line.
