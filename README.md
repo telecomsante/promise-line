@@ -1,5 +1,3 @@
- Queuing some promises
-
 Promise-line aim to queuing task and executing n of then in parallel
 
 If n = 1 (default) promise-line execute task sequentially
