@@ -1,103 +1,106 @@
 import test from 'ava'
-import { expect } from 'chai'
 import promiseLine from '..'
 
-test('executes a promise', function (done) {
+test('executes a promise', t => {
   var line = promiseLine()
   var executed = false
-  line.push(() => new Promise(function (resolve, reject) {
+  t.plan(1)
+  return line.push(() => new Promise((resolve, reject) => {
     setTimeout(function () {
       executed = true
       resolve()
     }, 30)
   })).then(function () {
-    done(executed ? undefined : 'failed')
-  }).catch(done)
+    t.true(executed)
+  })
 })
 
-test('gets a promise resolved result', function (done) {
+test('gets a promise resolved result', t => {
   var line = promiseLine()
-  line.push(() => new Promise(function (resolve, reject) {
+  t.plan(1)
+  return line.push(() => new Promise((resolve, reject) => {
     setTimeout(function () {
       resolve(42)
     }, 30)
   })).then(function (result) {
-    expect(result).to.equal(42)
-    done()
-  }).catch(done)
-})
-
-test('gets a promise rejected error', function (done) {
-  var line = promiseLine()
-  line.push(() => new Promise(function (resolve, reject) {
-    setTimeout(function () {
-      reject(42)
-    }, 30)
-  })).then(done).catch(function (error) {
-    expect(error).to.equal(42)
-    done()
+    t.is(result, 42)
   })
 })
 
-test('executes many promises in sequence', function (done) {
+test('gets a promise rejected error', t => {
+  var line = promiseLine()
+  t.plan(1)
+  return line.push(() => new Promise((resolve, reject) => {
+    setTimeout(function () {
+      reject(42)
+    }, 30)
+  })).then(() => t.fail('must reject')).catch(error => {
+    t.is(error, 42)
+  })
+})
+
+test('executes many promises in sequence', t => {
   var line = promiseLine()
   var max = 30
   var count = 0
+  t.plan(max + 1)
   new Array(max).fill(0).map((_, i) => max - i).map(v => () => new Promise(function (resolve, reject) {
     setTimeout(function () {
       ++count
       resolve()
     }, v)
-  })).map((p, i) => line.push(p).then(function () {
-    expect(count).to.equal(i + 1)
-  }).catch(done))
+  })).map((p, i) => line.push(p).then(() => {
+    t.is(count, i + 1)
+  }).catch(() => t.fail('must resolve')))
 
-  line.push(() => new Promise(function (resolve, reject) {
-    expect(count).to.equal(max)
+  return line.push(() => new Promise((resolve, reject) => {
+    t.is(count, max)
     resolve()
-  })).then(done).catch(done)
+  }))
 })
 
-test('executes many promise chains in sequence', function (done) {
+test('executes many promise chains in sequence', t => {
   var line = promiseLine()
   var max = 30
   var count = 0
-  new Array(max).fill(function () {
+  t.plan(max + 1)
+  new Array(max).fill(() => {
     var localCount
-    return new Promise(function (resolve, reject) {
-      setTimeout(function () {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
         localCount = count
         resolve()
       }, 10)
-    }).then(function () {
-      return new Promise(function (resolve, reject) {
+    }).then(() => {
+      return new Promise((resolve, reject) => {
         setTimeout(function () {
           ++localCount
           resolve()
         }, 10)
       })
-    }).then(function () {
-      return new Promise(function (resolve, reject) {
-        setTimeout(function () {
+    }).then(() => {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
           count = localCount
           resolve()
         }, 10)
       })
     })
-  }).map((p, i) => line.push(p).then(function () {
-    expect(count).to.equal(i + 1)
-  }).catch(done))
+  }).map((p, i) => line.push(p).then(() => {
+    t.is(count, i + 1)
+  }).catch(t => t.fail('must resove')))
 
-  line.push(() => new Promise(function (resolve, reject) {
-    expect(count).to.equal(max)
+  return line.push(() => new Promise((resolve, reject) => {
+    t.is(count, max)
     resolve()
-  })).then(done).catch(done)
+  }))
 })
 
-test('executes many promises in parallel', done => {
-  let count
-  let maxCount
+test('executes many promises in parallel', t => {
+  let count = 0
+  let maxCount = 0
   var line = promiseLine(10)
+  t.plan(2)
   const promises = [...new Array(30)].map(() => () => new Promise(resolve => {
     count++
     maxCount = count > maxCount ? count : maxCount
@@ -107,9 +110,9 @@ test('executes many promises in parallel', done => {
     }, 100)
   })).map(p => line.push(p))
 
-  Promise.all(promises)
+  return Promise.all(promises)
     .then(() => {
-      expect(count).to.equal(0)
-      expect(maxCount).to.equal(10)
+      t.is(count, 0)
+      t.is(maxCount, 10)
     })
 })
