@@ -32,10 +32,10 @@ test('gets a promise rejected error', t => {
   t.plan(1)
   return line.push(() => new Promise((resolve, reject) => {
     setTimeout(function () {
-      reject(42)
+      reject(new Error('42'))
     }, 30)
   })).then(() => t.fail('must reject')).catch(error => {
-    t.is(error, 42)
+    t.is(error.message, '42')
   })
 })
 

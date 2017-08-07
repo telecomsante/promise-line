@@ -26,8 +26,8 @@
     "registry": "https://registry.npmjs.org"
   },
   "devDependencies": {
-    "ava": "^0.16.0",
-    "nyc": "^8.4.0",
-    "standard": "^8.5.0"
+    "ava": "^0.21.0",
+    "nyc": "^11.1.0",
+    "standard": "^10.0.3"
   }
 }
