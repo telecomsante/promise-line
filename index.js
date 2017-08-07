@@ -1,34 +1,32 @@
 'use strict'
 
-module.exports = function () {
-  var handle = {}
-  var line = []
-  var started = false
+module.exports = function (nbMax = 1) {
+  const line = []
+  let nbExec = 0
 
-  var process = function () {
-    var job = line.shift()
-    if (job) {
-      job.factory().then(job.resolve).catch(job.reject).then(process)
-    } else {
-      started = false
+  const process = function () {
+    if (nbExec === nbMax) return
+
+    const task = line.shift()
+    if (!task) return
+
+    nbExec++
+    task.factory().then(task.resolve).catch(task.reject)
+      .then(() => {
+        nbExec--
+        process()
+      })
+  }
+
+  return {
+    push (promiseFactory) {
+      const task = { factory: promiseFactory }
+      line.push(task)
+      return new Promise(function (resolve, reject) {
+        task.resolve = resolve
+        task.reject = reject
+        process()
+      })
     }
   }
-
-  var start = function () {
-    if (started) { return }
-    started = true
-    process()
-  }
-
-  handle.push = function (promiseFactory) {
-    var job = { factory: promiseFactory }
-    line.push(job)
-    return new Promise(function (resolve, reject) {
-      job.resolve = resolve
-      job.reject = reject
-      start()
-    })
-  }
-
-  return handle
 }
